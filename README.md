@@ -46,7 +46,7 @@ actionLink: /blogs/guide/introduce
 ### 安装
 
 ```bash
-CGO_ENABLED=1 go install github.com/seqyuan/annotask/cmd/app@latest
+CGO_ENABLED=1 go install github.com/seqyuan/annotask/cmd/annotask@latest
 ```
 
 ### 基本使用

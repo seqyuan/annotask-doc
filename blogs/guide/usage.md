@@ -17,8 +17,16 @@ annotask 支持两种运行模式：
 ### 基本用法
 
 ```bash
+# 方式 1: 直接使用选项参数（自动使用 local 模块）
 annotask -i input.sh -l 2 -p 4 --project myproject
+
+# 方式 2: 显式指定模块
+annotask local -i input.sh -l 2 -p 4 --project myproject
 ```
+
+::: tip 提示
+从 v1.7.0 开始，annotask 采用模块化设计。直接使用选项参数（如 `-i file.sh`）时会自动使用 `local` 模块，也可以显式指定模块名称。
+:::
 
 ### 参数说明
 
@@ -86,6 +94,10 @@ annotask qsubsge -i input.sh -l 2 -p 4 --project myproject --cpu 2 --mem 4
 annotask qsubsge -i input.sh -l 2 -p 4 --project myproject --cpu 2 --mem 4 --h_vmem 8
 ```
 
+::: tip 提示
+`qsubsge` 是一个独立的模块，必须显式指定模块名称。
+:::
+
 ### 参数说明
 
 ```
@@ -140,6 +152,32 @@ echo 6
 3. 按照`-l`参数切割的input.sh的子脚本，存放在`input.sh.shell`目录
 4. 子脚本命名格式：`{文件前缀}_0001.sh`（例如 `input.sh` 会生成 `input_0001.sh`，最多支持9999个子任务）
 5. 每个子脚本的标准输出和标准错误会分别保存到 `.o` 和 `.e` 文件
+
+## 模块化设计
+
+从 v1.7.0 开始，annotask 采用模块化设计：
+
+- **local**: 本地并行执行任务（默认模块，可直接使用选项参数）
+- **qsubsge**: SGE 集群投递
+- **stat**: 查询任务状态
+- **delete**: 删除任务记录
+
+### 查看模块列表
+
+```bash
+# 空运行程序显示模块列表
+annotask
+```
+
+### 查看模块帮助
+
+```bash
+# 查看特定模块的帮助
+annotask local --help
+annotask qsubsge --help
+annotask stat --help
+annotask delete --help
+```
 
 ## 任务状态查询
 

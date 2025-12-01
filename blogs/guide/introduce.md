@@ -60,11 +60,19 @@ annotask 特别适合以下场景：
 
 ## 快速开始
 
+### 安装
+
+```bash
+CGO_ENABLED=1 go install github.com/seqyuan/annotask/cmd/annotask@latest
+```
+
 ### 基本使用示例
 
 ```bash
 # Local 模式：并行执行任务
 annotask -i input.sh -l 2 -p 4 --project myproject
+# 或者显式指定模块
+annotask local -i input.sh -l 2 -p 4 --project myproject
 
 # QsubSge 模式：投递到 SGE 集群
 annotask qsubsge -i input.sh -l 2 -p 4 --project myproject --cpu 2 --mem 4
