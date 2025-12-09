@@ -72,47 +72,6 @@ export default defineUserConfig({
         ],
       },
     ],
-    bulletin: {
-      body: [
-        {
-          type: "text",
-          content: `🎉🎉🎉  annotask 是一个并行任务执行工具，支持本地并行执行和 SGE 集群投递两种模式。`,
-          style: "font-size: 12px;",
-        },
-        {
-          type: "hr",
-        },
-        {
-          type: "title",
-          content: "GitHub",
-        },
-        {
-          type: "text",
-          content: `
-          <ul>
-            <li><a href="https://github.com/seqyuan/annotask">annotask 项目</a></li>
-            <li><a href="https://github.com/seqyuan/annotask/issues">Issues</a></li>
-          </ul>`,
-          style: "font-size: 12px;",
-        },
-        {
-          type: "hr",
-        },
-        {
-          type: "title",
-          content: "微信",
-        },
-        {
-          type: "image",
-          src: "/weixin.png",
-          style: "width: 200px; display: block; margin: 0 auto;",
-        },
-        {
-          type: "text",
-          content: `<p style="text-align: center; font-size: 12px; margin-top: 10px;">微信号：seqyuan</p>`,
-        },
-      ],
-    },
     // commentConfig: {
     //   type: 'valine',
     //   // options 与 1.x 的 valineConfig 配置一致

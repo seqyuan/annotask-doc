@@ -1,6 +1,5 @@
 ---
 title: 使用方法
-date: 2025-01-27
 ---
 
 # annotask 使用方法
@@ -135,16 +134,14 @@ annotask qsubsge -i input.sh -l 2 -p 4 --project myproject --cpu 2 --mem 4 --h_v
 `-i` 参数为一个shell脚本，例如`input.sh`这个shell脚本的内容示例如下：
 
 ```bash
-echo 1
-echo 11
-echo 2
-sddf
-echo 3
-grep -h
-echo 4
-echo 44
-echo 5
-echo 6
+blastn -db /seqyuan/nt -evalue 0.001 -outfmt 5  -query sample1_1.fasta -out sample1_1.xml -num_threads 4
+python3 /seqyuan/bin/blast_xml2txt.py -i sample1_1.xml -o sample1_1.txt
+blastn -db /seqyuan/nt -evalue 0.001 -outfmt 5  -query sample2_1.fasta -out sample2_1.xml -num_threads 4
+python3 /seqyuan/bin/blast_xml2txt.py -i sample2_1.xml -o sample2_1.txt
+blastn -db /seqyuan/nt -evalue 0.001 -outfmt 5  -query sample3_1.fasta -out sample3_1.xml -num_threads 4
+python3 /seqyuan/bin/blast_xml2txt.py -i sample3_1.xml -o sample3_1.txt
+blastn -db /seqyuan/nt -evalue 0.001 -outfmt 5  -query sample4_1.fasta -out sample4_1.xml -num_threads 4
+python3 /seqyuan/bin/blast_xml2txt.py -i sample4_1.xml -o sample4_1.txt
 ```
 
 ### -l 参数说明
@@ -191,71 +188,72 @@ annotask delete --help
 
 ## 任务状态查询
 
-### 查询所有任务
+`stat` 模块用于查询全局数据库中的任务状态。根据是否使用 `-p` 参数，输出格式不同。
+
+### 查询所有任务（无 `-p` 参数）
 
 ```bash
 annotask stat
 ```
 
-示例输出：
+显示所有项目的汇总信息，格式为：`project module mode status statis stime etime`
+
+**输出格式说明**：
+- `project`: 项目名称
+- `module`: 模块名称（输入文件的 basename）
+- `mode`: 运行模式（`local` 或 `qsubsge`）
+- `status`: 任务状态（`running`、`completed`、`failed` 或 `-`）
+- `statis`: 任务统计，格式为 `总任务数/待处理任务数`（例如：`10/2` 表示总共10个任务，还有2个待处理）
+- `stime`: 开始时间（MM-DD HH:MM 格式）
+- `etime`: 结束时间（MM-DD HH:MM 格式，未结束显示 `-`）
+
+**示例输出**：
 ```
-Tasks for user: username
-----------------------------------------------------------------------------------------------------------------------
-Project         Module                Mode       Pending    Failed     Running    Finished   Start Time  End Time
-----------------------------------------------------------------------------------------------------------------------
-myproject       input                 local      0          0          0          5          12-25 14:30  12-25 15:45
-myproject       process               qsubsge    2          1          3          10         12-26 09:15  -
-testproject     analysis              local      0          0          0          8          12-24 10:20  12-24 11:30
-----------------------------------------------------------------------------------------------------------------------
-Total records: 3
+project          module               mode       status     statis          stime        etime       
+myproject        input                local      completed  5/0             12-25 14:30  12-25 15:45
+myproject        process              qsubsge    running    16/2            12-26 09:15  -
+testproject      analysis             local      completed  8/0             12-24 10:20  12-24 11:30
 ```
 
-### 查询特定项目
+### 查询特定项目（使用 `-p` 参数）
 
 ```bash
 annotask stat -p myproject
 ```
 
-示例输出：
+显示指定项目的详细信息，格式为：`module pending running failed finished stime etime`，并在表格后显示 shellPath 列表。
+
+**输出格式说明**：
+- `module`: 模块名称
+- `pending`: Pending 状态任务数
+- `running`: Running 状态任务数
+- `failed`: Failed 状态任务数
+- `finished`: Finished 状态任务数
+- `stime`: 开始时间（MM-DD HH:MM 格式）
+- `etime`: 结束时间（MM-DD HH:MM 格式，未结束显示 `-`）
+
+**ShellPath 列表格式**：
+- 每个模块一行，格式为：`模块名_完整路径`
+- 用于快速定位输入文件位置
+
+**示例输出**：
 ```
-Tasks for user: username
-Project filter: myproject
-----------------------------------------------------------------------------------------------------------------------
-Project         Module                Mode       Pending    Failed     Running    Finished   Start Time  End Time
-----------------------------------------------------------------------------------------------------------------------
-myproject       input                 local      0          0          0          5          12-25 14:30  12-25 15:45
-myproject       process               qsubsge    2          1          3          10         12-26 09:15  -
-----------------------------------------------------------------------------------------------------------------------
-Total records: 2
-```
+module               pending  running  failed   finished  stime        etime       
+input                0        0        0        5         12-25 14:30  12-25 15:45
+process              2        1        3        10        12-26 09:15  -
 
-### 查询并显示 Shell Path
-
-```bash
-annotask stat -p myproject
-```
-
-使用 `-p` 参数时会自动显示 shellPath 列表：
-
-示例输出：
-```
-Tasks for user: username
-Project filter: myproject
-----------------------------------------------------------------------------------------------------------------------
-Module                Pending    Running    Failed     Finished   Start Time  End Time
-----------------------------------------------------------------------------------------------------------------------
-input                 0          0          0          5          12-25 14:30  12-25 15:45
-process               2          1          3          10         12-26 09:15  -
-----------------------------------------------------------------------------------------------------------------------
-Total records: 2
-
-Shell Paths:
-/absolute/path/to/input.sh
-/absolute/path/to/process.sh
+input_/absolute/path/to/input.sh
+process_/absolute/path/to/process.sh
 ```
 
-::: tip 提示（v1.7.8+）
-从 v1.7.8 开始，`stat` 模块移除了 `-m/--module` 参数。使用 `-p` 参数时会自动显示 shellPath 列表。
+::: tip 提示
+- 使用 `-p` 参数时，会自动显示 shellPath 列表，无需额外参数
+- 时间格式统一为 "月-日 时:分"（例如：`12-25 14:30`）
+- 任务状态 `status` 字段：
+  - `running`: 有任务正在运行或待处理
+  - `completed`: 所有任务已完成（无失败任务）
+  - `failed`: 有任务失败
+  - `-`: 状态未设置
 :::
 
 ## 删除任务记录

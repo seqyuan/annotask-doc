@@ -1,6 +1,5 @@
 ---
 title: 线程/goroutine 消耗分析
-date: 2025-01-27
 ---
 
 # 线程/goroutine 消耗分析
@@ -18,11 +17,14 @@ date: 2025-01-27
 
 ### 2. 监控 goroutine (MonitorTaskStatus)
 - **数量**: 1
-- **作用**: 实时监控数据库，输出任务状态变化
-- **生命周期**: 从程序启动到所有任务完成
+- **作用**: 实时监控数据库，输出任务状态变化到标准输出
+- **生命周期**: 从程序启动到所有任务完成（通过 context 控制）
 - **资源消耗**: 
-  - 每秒查询一次数据库
-  - 内存：维护 lastStatus map（每个任务约 100-200 字节）
+  - 每秒查询一次本地数据库（使用 `time.NewTicker(1 * time.Second)`）
+  - 每秒更新一次全局数据库（如果配置了全局数据库）
+  - 内存：维护 `lastStatus` map（每个任务约 100-200 字节）
+  - 输出格式：表格格式，包含 `try task status retry taskid exitcode time` 列
+  - 不显示 Pending 状态的任务
 
 ## Local 模式线程消耗
 
@@ -90,16 +92,19 @@ date: 2025-01-27
 
 3. **监控循环**（长时间运行，但会释放线程）
    - `time.Sleep(5 * time.Second)`: 每 5 秒检查一次任务状态
-   - `session.JobPs()`: 查询任务状态（< 100ms）
-   - 文件读取操作（< 10ms）
+   - `session.JobPs(jobID)`: 通过 DRMAA 查询 SGE 任务状态（< 100ms）
+   - 文件读取操作：检查 `.e` 错误文件判断内存错误（< 10ms）
+   - 检查 `.sign` 文件判断任务成功（< 10ms）
+   - 支持 context 取消，允许优雅关闭
    - **关键**: 在 Sleep 期间，goroutine 会释放线程，不占用 CPU
 
 #### 资源消耗总结
 
 - **Goroutine 数量**: 最多 `-p` 个（并发控制）
-- **实际线程数**: 通常远少于 goroutine 数
+- **实际线程数**: 通常远少于 goroutine 数（Go 运行时复用）
 - **内存消耗**: 每个 goroutine 约 2KB 栈空间 + DRMAA 会话对象（约 1KB）
 - **CPU 消耗**: 非常低（主要是每 5 秒的状态检查）
+- **网络消耗**: 每 5 秒一次 DRMAA 查询，网络开销很小
 
 #### 示例计算
 

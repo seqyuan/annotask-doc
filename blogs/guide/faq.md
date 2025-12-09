@@ -1,6 +1,5 @@
 ---
 title: 常见问题
-date: 2025-01-27
 ---
 
 # annotask 常见问题
@@ -156,27 +155,6 @@ retry:
   max: 3  # 最大重试次数，可以修改为其他值
 ```
 
-## 如何监控任务执行情况？
-
-### 实时监控
-
-annotask 在运行时会实时输出任务状态：
-
-```
-[NEW] Task 1: Pending -> Running (PID: 12345)
-Task 2: Running -> Finished (Exit: 0)
-[RETRY-1] Task 3: Failed -> Running (PID: 12346)
-```
-
-### 查询任务状态
-
-```bash
-# 查询所有任务
-annotask stat
-
-# 查询特定项目
-annotask stat -p myproject
-```
 
 ## 下一步
 
