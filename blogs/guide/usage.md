@@ -104,10 +104,10 @@ annotask qsubsge -i input.sh -l 2 -p 4 --project myproject --cpu 2 --mem 4 --h_v
 -l, --line          每几行作为一个任务单元（默认：从配置文件读取）
 -p, --thread        最大并发任务数（默认：从配置文件读取）
     --project       项目名称（默认：从配置文件读取）
-    --cpu           CPU数量（默认：从配置文件读取）
-    --mem           内存大小（GB，可选，显式设置时才会在 DRMAA 投递时使用）
-    --h_vmem        虚拟内存大小（GB，可选，显式设置时才会在 DRMAA 投递时使用）
-    --queue         队列名称（可选，支持多个队列，逗号分隔，例如：trans.q,nassci.q,sci.q）
+    --cpu           qsubsge 模式中，单个task的CPU数量（默认：从配置文件读取）
+    --mem           qsubsge 模式中，单个task的内存大小（GB，可选，显式设置时才会在 DRMAA 投递时使用）
+    --h_vmem        qsubsge 模式中，单个task的虚拟内存大小（GB，可选，显式设置时才会在 DRMAA 投递时使用）
+    --queue         qsubsge 模式中，单个task投递的队列名称（可选，支持多个队列，逗号分隔，例如：sca,sci.q）
     -P, --sge-project SGE 项目名称（可选，用于 SGE 资源配额管理）
 ```
 

@@ -7,7 +7,7 @@ export default defineUserConfig({
   description: "A go binaries for parallel task execution - 并行任务执行工具",
   bundler: viteBundler(),
   theme: recoTheme({
-    logo: "/logo.png",
+    logo: "/logo.svg",
     author: "Yuan Zan",
     authorAvatar: "/head.png",
     docsRepo: "https://github.com/seqyuan/annotask-doc",

@@ -12,7 +12,7 @@ title: annotask 介绍
 
 # annotask
 
-Annotation Task，并行任务执行工具。将 shell 脚本按行拆分，支持本地并行执行或投递到 SGE 集群运行。
+Annoroad parallel task monitor tool，并行任务执行工具。将 shell 脚本按行拆分，支持本地并行执行或投递到 SGE 集群运行。
 
 ## 核心功能
 

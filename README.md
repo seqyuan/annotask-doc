@@ -9,7 +9,7 @@ bannerBrand:
   bgImage: '/bg.svg'
   title: annotask
   description: 并行任务执行工具
-  tagline: Annotation Task，支持本地并行执行和 SGE 集群投递两种模式。适用于有很多运行时间短，但是需要运行很多的脚本，有助于减少投递的脚本。
+  tagline: Annoroad parallel task monitor tool，并行任务执行工具。将 shell 脚本按行拆分，支持本地并行执行或投递到 SGE 集群运行。
   buttons:
     - { text: 快速开始, link: '/blogs/guide/introduce' }
     - { text: 安装指南, link: '/blogs/guide/installation', type: 'plain' }
@@ -37,17 +37,6 @@ actionLink: /blogs/guide/introduce
 - 实时监控任务状态，输出到标准输出
 - 支持项目管理和任务状态查询
 
-### 💾 状态持久化
-- 使用 SQLite3 数据库记录任务状态
-- 支持跳过已完成任务，只执行失败的任务
-
-## 快速开始
-
-### 安装
-
-```bash
-CGO_ENABLED=1 go install github.com/seqyuan/annotask/cmd/annotask@latest
-```
 
 ### 基本使用
 
@@ -73,3 +62,4 @@ annotask qsubsge -i input.sh -l 2 -p 4 --project myproject --cpu 2 --mem 4
 
 - [GitHub 项目](https://github.com/seqyuan/annotask)
 - [问题反馈](https://github.com/seqyuan/annotask/issues)
+
