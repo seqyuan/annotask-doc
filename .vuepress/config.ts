@@ -8,8 +8,8 @@ export default defineUserConfig({
   bundler: viteBundler(),
   theme: recoTheme({
     logo: "/logo.svg",
-    author: "Yuan Zan",
-    authorAvatar: "/head.png",
+    // author: "Yuan Zan",  // 隐藏作者信息
+    // authorAvatar: "/head.png",  // 隐藏作者头像
     docsRepo: "https://github.com/seqyuan/annotask-doc",
     docsBranch: "main",
     docsDir: ".",
