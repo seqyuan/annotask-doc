@@ -101,14 +101,24 @@ annotask qsubsge -i input.sh -l 2 -p 4 --project myproject --cpu 2 --mem 4 --h_v
 ### 参数说明
 
 ```
--i, --infile    输入文件，shell脚本格式（必需）
--l, --line      每几行作为一个任务单元（默认：从配置文件读取）
--p, --thread    最大并发任务数（默认：从配置文件读取）
-    --project   项目名称（默认：从配置文件读取）
-    --cpu       CPU数量（默认：从配置文件读取）
-    --mem       内存大小（GB，默认：从配置文件读取）
-    --h_vmem    虚拟内存大小（GB，可选，不设置时默认为 mem * 1.25）
+-i, --infile        输入文件，shell脚本格式（必需）
+-l, --line          每几行作为一个任务单元（默认：从配置文件读取）
+-p, --thread        最大并发任务数（默认：从配置文件读取）
+    --project       项目名称（默认：从配置文件读取）
+    --cpu           CPU数量（默认：从配置文件读取）
+    --mem           内存大小（GB，可选，显式设置时才会在 DRMAA 投递时使用）
+    --h_vmem        虚拟内存大小（GB，可选，显式设置时才会在 DRMAA 投递时使用）
+    --queue         队列名称（可选，支持多个队列，逗号分隔，例如：trans.q,nassci.q,sci.q）
+    -P, --sge-project SGE 项目名称（可选，用于 SGE 资源配额管理）
 ```
+
+::: tip 内存参数说明（v1.7.8+）
+- `--mem` 和 `--h_vmem` 参数现在只在用户显式设置时才会在 DRMAA 投递时使用
+- 如果用户只设置了 `--mem`，DRMAA 投递时只包含 `-l mem=XG`，不包含 `-l h_vmem`
+- 如果用户只设置了 `--h_vmem`，DRMAA 投递时只包含 `-l h_vmem=XG`，不包含 `-l mem`
+- 如果都不设置，DRMAA 投递时不会包含内存相关参数
+- 配置文件不再包含 `defaults.mem` 字段，内存参数必须通过命令行显式指定
+:::
 
 ### 注意事项
 
@@ -222,17 +232,31 @@ Total records: 2
 ### 查询并显示 Shell Path
 
 ```bash
-annotask stat -p myproject -m
+annotask stat -p myproject
 ```
+
+使用 `-p` 参数时会自动显示 shellPath 列表：
 
 示例输出：
 ```
+Tasks for user: username
+Project filter: myproject
+----------------------------------------------------------------------------------------------------------------------
+Module                Pending    Running    Failed     Finished   Start Time  End Time
+----------------------------------------------------------------------------------------------------------------------
+input                 0          0          0          5          12-25 14:30  12-25 15:45
+process               2          1          3          10         12-26 09:15  -
+----------------------------------------------------------------------------------------------------------------------
+Total records: 2
+
+Shell Paths:
 /absolute/path/to/input.sh
 /absolute/path/to/process.sh
-Total records: 2
 ```
 
-注意：`-m` 参数必须与 `-p` 参数一起使用，使用 `-m` 时只输出 Shell Path，每行一个路径。
+::: tip 提示（v1.7.8+）
+从 v1.7.8 开始，`stat` 模块移除了 `-m/--module` 参数。使用 `-p` 参数时会自动显示 shellPath 列表。
+:::
 
 ## 删除任务记录
 

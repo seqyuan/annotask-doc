@@ -100,15 +100,16 @@ export default defineUserConfig({
         },
         {
           type: "title",
-          content: "关于",
+          content: "微信",
+        },
+        {
+          type: "image",
+          src: "/weixin.png",
+          style: "width: 200px; display: block; margin: 0 auto;",
         },
         {
           type: "text",
-          content: `
-          <ul>
-            <li>微信公众号：seqyuan</li>
-          </ul>`,
-          style: "font-size: 12px;",
+          content: `<p style="text-align: center; font-size: 12px; margin-top: 10px;">微信号：seqyuan</p>`,
         },
       ],
     },
