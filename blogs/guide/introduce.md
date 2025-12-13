@@ -3,7 +3,7 @@ title: annotask 介绍
 ---
 
 <p align="center">
-  <img alt="annotask Logo" src="https://avatars2.githubusercontent.com/u/24697112?v=3&s=200" height="140" />
+  <img alt="annotask Logo" src="/logo.svg" height="140" />
   <h3 align="center">annotask</h3>
   <p align="center">A go binaries for parallel task execution.</p>
 </p>
