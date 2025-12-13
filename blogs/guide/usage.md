@@ -203,16 +203,16 @@ annotask stat
 - `module`: 模块名称（输入文件的 basename）
 - `mode`: 运行模式（`local` 或 `qsubsge`）
 - `status`: 任务状态（`running`、`completed`、`failed` 或 `-`）
-- `statis`: 任务统计，格式为 `总任务数/待处理任务数`（例如：`10/2` 表示总共10个任务，还有2个待处理）
+- `statis`: 任务统计，格式为 `已完成数/总任务数`（例如：`14/16` 表示总共16个任务，14个已完成）
 - `stime`: 开始时间（MM-DD HH:MM 格式）
 - `etime`: 结束时间（MM-DD HH:MM 格式，未结束显示 `-`）
 
 **示例输出**：
 ```
 project          module               mode       status     statis          stime        etime       
-myproject        input                local      completed  5/0             12-25 14:30  12-25 15:45
-myproject        process              qsubsge    running    16/2            12-26 09:15  -
-testproject      analysis             local      completed  8/0             12-24 10:20  12-24 11:30
+myproject        input                local      -          5/5             12-25 14:30  12-25 15:45
+myproject        process              qsubsge    -          14/16           12-26 09:15  -
+testproject      analysis             local      -          8/8             12-24 10:20  12-24 11:30
 ```
 
 ### 查询特定项目（使用 `-p` 参数）
@@ -221,29 +221,30 @@ testproject      analysis             local      completed  8/0             12-2
 annotask stat -p myproject
 ```
 
-显示指定项目的详细信息，格式为：`module pending running failed finished stime etime`，并在表格后显示 shellPath 列表。
+显示指定项目的详细任务信息。
 
 **输出格式说明**：
-- `module`: 模块名称
-- `pending`: Pending 状态任务数
-- `running`: Running 状态任务数
-- `failed`: Failed 状态任务数
-- `finished`: Finished 状态任务数
-- `stime`: 开始时间（MM-DD HH:MM 格式）
-- `etime`: 结束时间（MM-DD HH:MM 格式，未结束显示 `-`）
-
-**ShellPath 列表格式**：
-- 每个模块一行，格式为：`模块名_完整路径`
-- 用于快速定位输入文件位置
+- 第一部分：任务状态表格
+  - `id`: 任务ID（数据库中的主键）
+  - `module`: 模块名称
+  - `pending`: 待处理任务数
+  - `running`: 运行中任务数
+  - `failed`: 失败任务数
+  - `finished`: 已完成任务数
+  - `stime`: 开始时间（MM-DD HH:MM 格式）
+  - `etime`: 结束时间（MM-DD HH:MM 格式，未结束显示 `-`）
+- 第二部分：任务ID和shell路径列表（空行分隔）
+  - 格式：`id 完整shell路径`
+  - 每个模块对应一行，用于快速定位任务文件
 
 **示例输出**：
 ```
-module               pending  running  failed   finished  stime        etime       
-input                0        0        0        5         12-25 14:30  12-25 15:45
-process              2        1        3        10        12-26 09:15  -
+id     module               pending  running  failed   finished  stime        etime       
+1      input                0        0        0        5         12-25 14:30  12-25 15:45
+2      process              2        3        1        10        12-26 09:15  -
 
-input_/absolute/path/to/input.sh
-process_/absolute/path/to/process.sh
+1 /absolute/path/to/input.sh
+2 /absolute/path/to/process.sh
 ```
 
 ::: tip 提示
@@ -258,17 +259,89 @@ process_/absolute/path/to/process.sh
 
 ## 删除任务记录
 
+`delete` 模块用于从全局数据库删除任务记录。支持按项目、模块或任务ID删除。
+
 ### 删除整个项目
 
 ```bash
 annotask delete -p myproject
 ```
 
+删除指定项目的所有任务记录。
+
 ### 删除特定模块
 
 ```bash
 annotask delete -p myproject -m input
 ```
+
+删除指定项目中特定模块的任务记录。
+
+### 按任务ID删除
+
+```bash
+annotask delete -k 1
+```
+
+删除指定任务ID的记录（任务ID可通过 `annotask stat -p project` 命令查看）。
+
+### 参数说明
+
+```
+-p, --project    项目名称（不使用 -k/--id 时为必需）
+-m, --module    模块名称（输入文件 basename，不含扩展名，可选）
+-k, --id        任务ID（使用此参数时不需要指定 -p 和 -m）
+```
+
+### 删除行为
+
+**对于运行中的任务**：
+- 会终止主进程（PID）及其所有子进程
+- **qsubsge 模式**：使用 `qdel` 命令终止所有运行中的 SGE 作业，并将状态更新为 `failed`
+- **local 模式**：将本地数据库中所有运行中的任务状态更新为 `failed`
+- 然后从全局数据库中删除任务记录
+
+**对于非运行中的任务**：
+- 直接从全局数据库删除记录，不进行进程终止操作
+
+### 使用示例
+
+```bash
+# 删除整个项目
+annotask delete -p myproject
+
+# 删除特定模块
+annotask delete -p myproject -m input
+
+# 按任务ID删除（任务ID可通过 stat -p 查看）
+annotask delete -k 1
+```
+
+### 输出示例
+
+```bash
+# 删除运行中的项目
+$ annotask delete -p myproject
+Terminated main process (PID: 12345) and its children for module 'input'
+Terminated SGE job 8944790 (task 1) using qdel
+Terminated SGE job 8944791 (task 2) using qdel
+Updated task 3 status to Failed
+Deleted 2 task record(s) for project 'myproject'
+
+# 删除特定模块
+$ annotask delete -p myproject -m input
+Deleted 1 task record(s) for project 'myproject' and module 'input'
+
+# 按任务ID删除
+$ annotask delete -k 1
+Deleted 1 task record(s) with ID 1
+```
+
+::: warning 注意事项
+- **删除操作不可逆**：删除任务记录后，无法恢复。请谨慎操作。
+- **本地数据库**：`delete` 命令只删除全局数据库中的记录，不会删除本地数据库（`{输入文件路径}.db`）和任务文件
+- **任务ID获取**：任务ID可以通过 `annotask stat -p project` 命令查看，输出中的 `id` 列即为任务ID
+:::
 
 ## 其他使用方式
 
