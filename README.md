@@ -2,7 +2,6 @@
 home: true
 modules:
   - BannerBrand
-  - Blog
   - MdContent
   - Footer
 bannerBrand:
@@ -15,9 +14,6 @@ bannerBrand:
     - { text: 安装指南, link: '/blogs/guide/installation', type: 'plain' }
   socialLinks:
     - { icon: 'LogoGithub', link: 'https://github.com/seqyuan/annotask' }
-blog:
-  socialLinks:
-    - { icon: 'LogoGithub', link: 'https://github.com/seqyuan/annotask-doc' }
 isShowTitleInHome: true
 actionText: 关于
 actionLink: /blogs/guide/introduce

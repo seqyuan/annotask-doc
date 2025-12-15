@@ -1,6 +1,6 @@
 {
-  "name": "annotask-doc",
-  "version": "1.0.0",
+  "name": "annotask",
+  "version": "1.8.10",
   "description": "Documentation for annotask - A go binaries for parallel task execution",
   "repository": "https://github.com/seqyuan/annotask-doc.git",
   "author": "Yuan Zan",

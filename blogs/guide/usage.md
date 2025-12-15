@@ -50,8 +50,8 @@ All works: 5
 Successed: 3
 Error: 2
 Err Shells:
-2	/Volumes/RD/parrell_task/input.sh.shell/work_0002.sh
-3	/Volumes/RD/parrell_task/input.sh.shell/work_0003.sh
+2	/Volumes/RD/parrell_task/input.sh.shell/task_0002.sh
+3	/Volumes/RD/parrell_task/input.sh.shell/task_0003.sh
 ```
 
 ### 运行产生的目录结构
@@ -60,37 +60,65 @@ Err Shells:
 .
 ├── input.sh
 ├── input.sh.db
+├── input.sh.log
 └── input.sh.shell
-    ├── work_0001.sh
-    ├── work_0001.sh.e
-    ├── work_0001.sh.o
-    ├── work_0001.sh.sign
-    ├── work_0002.sh
-    ├── work_0002.sh.e
-    ├── work_0002.sh.o
-    ├── work_0003.sh
-    ├── work_0003.sh.e
-    ├── work_0003.sh.o
-    ├── work_0004.sh
-    ├── work_0004.sh.e
-    ├── work_0004.sh.o
-    ├── work_0004.sh.sign
-    ├── work_0005.sh
-    ├── work_0005.sh.e
-    ├── work_0005.sh.o
-    └── work_0005.sh.sign
+    ├── task_0001.sh
+    ├── task_0001.sh.e
+    ├── task_0001.sh.o
+    ├── task_0001.sh.sign
+    ├── task_0002.sh
+    ├── task_0002.sh.e
+    ├── task_0002.sh.o
+    ├── task_0003.sh
+    ├── task_0003.sh.e
+    ├── task_0003.sh.o
+    ├── task_0004.sh
+    ├── task_0004.sh.e
+    ├── task_0004.sh.o
+    ├── task_0004.sh.sign
+    ├── task_0005.sh
+    ├── task_0005.sh.e
+    ├── task_0005.sh.o
+    └── task_0005.sh.sign
 ```
+
+**文件说明**：
+- `input.sh.db`：本地任务数据库（SQLite）
+- `input.sh.log`：实时监控日志文件
+- `input.sh.shell/`：子脚本存放目录
+- `task_XXXX.sh`：子脚本文件
+- `task_XXXX.sh.o`：标准输出文件
+- `task_XXXX.sh.e`：标准错误文件
+- `task_XXXX.sh.sign`：成功标记文件（任务成功完成后自动创建）
 
 ## QsubSge 模式
 
 ### 基本用法
 
 ```bash
-# 不指定 h_vmem，将自动使用 mem * 1.25
+# 只设置 mem，DRMAA 投递时只使用 -l vf=XG（虚拟内存）
 annotask qsubsge -i input.sh -l 2 -p 4 --project myproject --cpu 2 --mem 4
 
-# 或者手动指定 h_vmem
+# 只设置 h_vmem，DRMAA 投递时只使用 -l h_vmem=XG（硬虚拟内存限制）
+annotask qsubsge -i input.sh -l 2 -p 4 --project myproject --cpu 2 --h_vmem 8
+
+# 同时设置 mem 和 h_vmem
 annotask qsubsge -i input.sh -l 2 -p 4 --project myproject --cpu 2 --mem 4 --h_vmem 8
+
+# 指定队列（单个或多个，逗号分隔）
+annotask qsubsge -i input.sh --queue sci.q
+annotask qsubsge -i input.sh --queue trans.q,nassci.q,sci.q
+
+# 指定 SGE 项目（用于资源配额管理）
+annotask qsubsge -i input.sh -P bioinformatics
+
+# 使用 -pe smp 并行环境模式（默认）
+annotask qsubsge -i input.sh --cpu 4 --h_vmem 5
+# 或显式指定
+annotask qsubsge -i input.sh --cpu 4 --h_vmem 5 --mode pe_smp
+
+# 使用 -l p=X 模式
+annotask qsubsge -i input.sh --cpu 4 --h_vmem 18 --mode num_proc
 ```
 
 ::: tip 提示
@@ -104,30 +132,44 @@ annotask qsubsge -i input.sh -l 2 -p 4 --project myproject --cpu 2 --mem 4 --h_v
 -l, --line          每几行作为一个任务单元（默认：从配置文件读取）
 -p, --thread        最大并发任务数（默认：从配置文件读取）
     --project       项目名称（默认：从配置文件读取）
-    --cpu           qsubsge 模式中，单个task的CPU数量（默认：从配置文件读取）
-    --mem           qsubsge 模式中，单个task的内存大小（GB，可选，显式设置时才会在 DRMAA 投递时使用）
-    --h_vmem        qsubsge 模式中，单个task的虚拟内存大小（GB，可选，显式设置时才会在 DRMAA 投递时使用）
-    --queue         qsubsge 模式中，单个task投递的队列名称（可选，支持多个队列，逗号分隔，例如：sca,sci.q）
-    -P, --sge-project SGE 项目名称（可选，用于 SGE 资源配额管理）
+    --cpu           CPU数量（默认：从配置文件读取）
+    --mem           虚拟内存（vf）大小（GB，映射到 -l vf=XG，仅在显式设置时在DRMAA中使用）
+    --h_vmem        硬虚拟内存限制（h_vmem）大小（GB，映射到 -l h_vmem=XG，仅在显式设置时在DRMAA中使用）
+    --queue         队列名称（多个队列用逗号分隔，默认：从配置文件读取）
+    -P, --sge-project SGE项目名称（用于资源配额管理，默认：从配置文件读取）
+    --mode          并行环境模式：pe_smp（使用 -pe smp X，默认）或 num_proc（使用 -l p=X）
 ```
 
-::: tip 内存参数说明（v1.7.8+）
-- `--mem` 和 `--h_vmem` 参数现在只在用户显式设置时才会在 DRMAA 投递时使用
-- 如果用户只设置了 `--mem`，DRMAA 投递时只包含 `-l mem=XG`，不包含 `-l h_vmem`
-- 如果用户只设置了 `--h_vmem`，DRMAA 投递时只包含 `-l h_vmem=XG`，不包含 `-l mem`
+::: tip 内存参数说明
+- `--mem` 和 `--h_vmem` 参数只有在用户显式设置时，才会在 DRMAA 投递时使用
+- `--mem` 对应 SGE 的 `vf` 资源（虚拟内存），DRMAA 投递时使用 `-l vf=XG`
+- `--h_vmem` 对应 SGE 的 `h_vmem` 资源（硬虚拟内存限制），DRMAA 投递时使用 `-l h_vmem=XG`
+- 如果只设置了 `--mem`，DRMAA 投递时只包含 `-l vf=XG`，不包含 `-l h_vmem`
+- 如果只设置了 `--h_vmem`，DRMAA 投递时只包含 `-l h_vmem=XG`，不包含 `-l vf`
 - 如果都不设置，DRMAA 投递时不会包含内存相关参数
 - 配置文件不再包含 `defaults.mem` 字段，内存参数必须通过命令行显式指定
 :::
 
+::: tip 并行环境模式说明（--mode）
+- **pe_smp 模式**（默认，`--mode pe_smp`）：使用 `-pe smp X` 指定 CPU 数量
+  - 示例：`--cpu 4 --h_vmem 5` → `-l h_vmem=5G -pe smp 4`
+  - 这里的内存指的是单 CPU 需要消耗的内存
+- **num_proc 模式**（`--mode num_proc`）：使用 `-l p=X` 指定 CPU 数量
+  - 示例：`--cpu 4 --h_vmem 18 --mode num_proc` → `-l h_vmem=18G,p=4`
+  - 这里的内存指的是总内存
+:::
+
 ### 注意事项
 
-- QsubSge 模式会检查当前节点是否与配置文件中的 `node` 一致
-- 如果不一致，程序会报错退出
+- QsubSge 模式会检查当前节点是否在配置文件中的 `node` 列表中，以防止在计算节点误投递任务
+- 如果配置文件中设置了 `node` 列表，当前节点必须在列表中才能使用 qsubsge 模式
+- 如果 `node` 为空或不设置，则不对节点做限制
+- 如果当前节点不在允许的列表中，程序会报错退出
 - 任务会自动投递到 SGE 集群，输出文件会生成在子脚本所在目录（`{输入文件路径}.shell`）
-- 输出文件格式为 `{文件前缀}_0001.o.{jobID}` 和 `{文件前缀}_0001.e.{jobID}`
-- 例如：输入文件为 `input.sh`，子任务为 `input_0001.sh`，则输出文件为：
-  - `input.sh.shell/input_0001.o.{jobID}`（标准输出）
-  - `input.sh.shell/input_0001.e.{jobID}`（标准错误）
+- 输出文件格式为 `task_0001.sh.o.{jobID}` 和 `task_0001.sh.e.{jobID}`
+- 例如：输入文件为 `input.sh`，子任务为 `task_0001.sh`，则输出文件为：
+  - `input.sh.shell/task_0001.sh.o.{jobID}`（标准输出）
+  - `input.sh.shell/task_0001.sh.e.{jobID}`（标准错误）
 
 ## 输入文件格式
 
@@ -155,10 +197,12 @@ python3 /seqyuan/bin/blast_xml2txt.py -i sample4_1.xml -o sample4_1.txt
 ### annotask产生的文件
 
 1. `input.sh.db`文件，此文件为sqlite数据库（本地任务数据库）
-2. `input.sh.shell`目录，子脚本存放目录
-3. 按照`-l`参数切割的input.sh的子脚本，存放在`input.sh.shell`目录
-4. 子脚本命名格式：`{文件前缀}_0001.sh`（例如 `input.sh` 会生成 `input_0001.sh`，最多支持9999个子任务）
-5. 每个子脚本的标准输出和标准错误会分别保存到 `.o` 和 `.e` 文件
+2. `input.sh.log`文件，实时监控日志文件
+3. `input.sh.shell`目录，子脚本存放目录
+4. 按照`-l`参数切割的input.sh的子脚本，存放在`input.sh.shell`目录
+5. 子脚本命名格式：`task_0001.sh`（固定使用 `task` 作为前缀，最多支持9999个子任务）
+6. 每个子脚本的标准输出和标准错误会分别保存到 `.o` 和 `.e` 文件
+7. `task_XXXX.sh.sign`：成功标记文件（任务成功完成后自动创建）
 
 ## 模块化设计
 
