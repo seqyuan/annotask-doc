@@ -88,12 +88,12 @@ CGO_ENABLED=1 go install github.com/seqyuan/annotask/cmd/annotask@v1.7.8
 
 ```bash
 # Local 模式：并行执行任务
-annotask -i input.sh -l 2 -p 4 --project myproject
+annotask -i input.sh -l 2 -t 4 --project myproject
 # 或者显式指定模块
-annotask local -i input.sh -l 2 -p 4 --project myproject
+annotask local -i input.sh -l 2 -t 4 --project myproject
 
 # QsubSge 模式：投递到 SGE 集群
-annotask qsubsge -i input.sh -l 2 -p 4 --project myproject --cpu 2 --mem 4
+annotask qsubsge -i input.sh -l 2 -t 4 --project myproject --cpu 2 --mem 4
 ```
 
 ### 查询任务状态（stat 模块）
