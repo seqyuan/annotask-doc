@@ -77,7 +77,7 @@ export CGO_LDFLAGS="-L/opt/gridengine/lib/lx-amd64 -ldrmaa -Wl,-rpath,/opt/gride
 export LD_LIBRARY_PATH=/opt/gridengine/lib/lx-amd64:$LD_LIBRARY_PATH
 
 # 安装（从 GitHub 下载并编译指定版本）
-CGO_ENABLED=1 go install github.com/seqyuan/annotask/cmd/annotask@v1.7.8
+CGO_ENABLED=1 go install github.com/seqyuan/annotask/cmd/annotask@v1.9.5
 ```
 
 首次运行 `annotask` 时，会在程序所在目录自动创建 `annotask.yaml` 配置文件。
@@ -110,7 +110,7 @@ annotask stat
 - `module`: 模块名称（输入文件的 basename）
 - `mode`: 运行模式（`local` 或 `qsubsge`）
 - `status`: 任务状态（`running`、`completed`、`failed` 或 `-`）
-- `statis`: 任务统计，格式为 `总任务数/待处理任务数`
+- `statis`: 任务统计，格式为 `已完成数/总任务数`
 - `stime`: 开始时间（MM-DD HH:MM 格式）
 - `etime`: 结束时间（MM-DD HH:MM 格式，未结束显示 `-`）
 

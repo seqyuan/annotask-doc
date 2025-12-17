@@ -17,8 +17,20 @@ export CGO_LDFLAGS="-L/opt/gridengine/lib/lx-amd64 -ldrmaa -Wl,-rpath,/opt/gride
 export LD_LIBRARY_PATH=/opt/gridengine/lib/lx-amd64:$LD_LIBRARY_PATH
 
 # 安装（从 GitHub 下载并编译指定版本）
-CGO_ENABLED=1 go install github.com/seqyuan/annotask/cmd/annotask@latest
-#CGO_ENABLED=1 go install github.com/seqyuan/annotask/cmd/annotask@v1.8.10
+go env -w GOPROXY=https://goproxy.cn,direct
+# go env -w GOPROXY=https://mirrors.tuna.tsinghua.edu.cn/goproxy/,direct
+
+CGO_ENABLED=1 go install github.com/seqyuan/annotask/cmd/annotask@v1.9.5
+# 或安装最新版本
+#CGO_ENABLED=1 go install github.com/seqyuan/annotask/cmd/annotask@latest
+```
+
+#### 如你的服务器没有qsub功能，用下面的安装命令
+```bash
+go env -w GOPROXY=https://goproxy.cn,direct
+CGO_ENABLED=0 go install github.com/seqyuan/annotask/cmd/annotask@v1.9.5
+# 或安装最新版本
+#CGO_ENABLED=0 go install github.com/seqyuan/annotask/cmd/annotask@latest
 ```
 
 ```bash

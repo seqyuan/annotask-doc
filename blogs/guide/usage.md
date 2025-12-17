@@ -112,13 +112,13 @@ annotask qsubsge -i input.sh --queue trans.q,nassci.q,sci.q
 # 指定 SGE 项目（用于资源配额管理）
 annotask qsubsge -i input.sh -P bioinformatics
 
-# 使用 -pe smp 并行环境模式（默认）
-annotask qsubsge -i input.sh --cpu 4 --h_vmem 5
+# 使用 -l p=X 模式（默认）
+annotask qsubsge -i input.sh --cpu 4 --h_vmem 18
 # 或显式指定
-annotask qsubsge -i input.sh --cpu 4 --h_vmem 5 --mode pe_smp
-
-# 使用 -l p=X 模式
 annotask qsubsge -i input.sh --cpu 4 --h_vmem 18 --mode num_proc
+
+# 使用 -pe smp 并行环境模式
+annotask qsubsge -i input.sh --cpu 4 --h_vmem 5 --mode pe_smp
 ```
 
 ::: tip 提示
@@ -137,7 +137,7 @@ annotask qsubsge -i input.sh --cpu 4 --h_vmem 18 --mode num_proc
     --h_vmem        硬虚拟内存限制（h_vmem）大小（GB，映射到 -l h_vmem=XG，仅在显式设置时在DRMAA中使用）
     --queue         队列名称（多个队列用逗号分隔，默认：从配置文件读取）
     -P, --sge-project SGE项目名称（用于资源配额管理，默认：从配置文件读取）
-    --mode          并行环境模式：pe_smp（使用 -pe smp X，默认）或 num_proc（使用 -l p=X）
+    --mode          并行环境模式：num_proc（使用 -l p=X，默认）或 pe_smp（使用 -pe smp X）
 ```
 
 ::: tip 内存参数说明
@@ -151,12 +151,12 @@ annotask qsubsge -i input.sh --cpu 4 --h_vmem 18 --mode num_proc
 :::
 
 ::: tip 并行环境模式说明（--mode）
-- **pe_smp 模式**（默认，`--mode pe_smp`）：使用 `-pe smp X` 指定 CPU 数量
-  - 示例：`--cpu 4 --h_vmem 5` → `-l h_vmem=5G -pe smp 4`
-  - 这里的内存指的是单 CPU 需要消耗的内存
-- **num_proc 模式**（`--mode num_proc`）：使用 `-l p=X` 指定 CPU 数量
-  - 示例：`--cpu 4 --h_vmem 18 --mode num_proc` → `-l h_vmem=18G,p=4`
+- **num_proc 模式**（默认，`--mode num_proc`）：使用 `-l p=X` 指定 CPU 数量
+  - 示例：`--cpu 4 --h_vmem 18` → `-l h_vmem=18G,p=4`
   - 这里的内存指的是总内存
+- **pe_smp 模式**（`--mode pe_smp`）：使用 `-pe smp X` 指定 CPU 数量
+  - 示例：`--cpu 4 --h_vmem 5 --mode pe_smp` → `-l h_vmem=5G -pe smp 4`
+  - 这里的内存指的是单 CPU 需要消耗的内存
 :::
 
 ### 注意事项
